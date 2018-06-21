@@ -125,12 +125,15 @@ def text_message_handler(bot, update):
     try:
         url, end = split_in_two_with_default_second(update.message.text, None)
     except ValueError:
+        logger.info("Couldn't split")
         return
 
     if is_url(url):
         found = match(yt_schema, url) or match(yt_be_schema, url)
         if found:
             logger.info("Match: %s, %s", url, found)
+    else:
+        logger.info("Not an url: %s", is_url(url))
 
 
 def error_handler(bot, update, error):
