@@ -9,6 +9,8 @@ from ffmpy import FFmpeg
 from pygogo import Gogo
 from telegram.ext import Updater, RegexHandler
 import telegram
+from validators import url as is_url
+from url_match import make_schema, match
 
 import hy
 from parse_interval import parse_interval, ts_to_seconds
@@ -83,6 +85,8 @@ def handle_link(bot, update, groupdict):
         message = update.message
         logger.info("Message: %s, groupdict: %s", message.text, groupdict)
 
+        text_message_handler(bot, update)
+
         if not groupdict['end']:
             groupdict['end'] = "10"
         groupdict = {k:v for k,v in groupdict.items() if v is not None}
@@ -103,6 +107,30 @@ def handle_link(bot, update, groupdict):
         message.reply_video(downloaded_file, quote=False)
     except Exception as e:
         logger.exception(e)
+
+
+yt_schema = make_schema('https? www.?youtube.com /watch {v=:id t=:ts}')
+yt_be_schema = make_schema('https? youtu.be /:id {t=:ts}')
+
+
+def text_message_handler(bot, update):
+    def split_in_two_with_default_second(text, second):
+        parts = text.split(" ", 1)
+        if len(parts) == 2:
+            return parts
+        elif len(parts) == 1:
+            return [parts[0], second]
+        raise ValueError
+
+    try:
+        url, end = split_in_two_with_default_second(update.message.text, None)
+    except ValueError:
+        return
+
+    if is_url(url):
+        found = match(yt_schema, url) or match(yt_be_schema, url)
+        if found:
+            logger.info("Match: %s, %s", url, found)
 
 
 def error_handler(bot, update, error):
