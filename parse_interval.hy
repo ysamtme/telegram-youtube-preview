@@ -55,13 +55,13 @@
     (try ["length" (Timestamp 0 0 (int end))]
       (except [ValueError]))
 
-    (if-let [m (re.match (seq r"\+" hms-pattern line-end) end)]
+    (if-let [m (re.match (seq line-start r"\+" hms-pattern line-end) end)]
       ["length" (match-to-ts m)])
     
     (if-let [m (re.match (seq line-start hms-pattern line-end) end)]
       ["end" (match-to-ts m)])
 
-    (if-let [m (re.match (seq r"\.\." hms-pattern line-end) end)]
+    (if-let [m (re.match (seq line-start r"\.\." hms-pattern line-end) end)]
       ["ellipsis-end" (match-to-ts m)])
 
     (raise (ValueError ["don't know how to parse" end]))))
