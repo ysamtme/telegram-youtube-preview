@@ -133,7 +133,7 @@ async def handle_message_edit(message: types.Message):
             request = match_request(message.text)
         except ValueError as e:
             if know_message:
-                await bot.edit_message_caption(message.chat.id, message.message_id, caption=str(e))
+                await bot.edit_message_caption(message.chat.id, video_mes_id, caption=str(e))
             else:
                 await message.answer(str(e))
             return
@@ -150,7 +150,7 @@ async def handle_message_edit(message: types.Message):
 
         if know_message:
             await bot.edit_message_media(chat_id=message.chat.id,
-                                         message_id=message.message_id,
+                                         message_id=video_mes_id,
                                          media=InputMediaVideo(downloaded_file,
                                                                caption=request_to_start_timestamp_url(request)))
         else:
